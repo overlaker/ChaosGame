@@ -9,6 +9,8 @@ using namespace sf;
 
 int main()
 {
+    int NPointsGen = 10;
+
     // Create a video mode object
     VideoMode vm(1900, 1000);
 
@@ -97,7 +99,7 @@ int main()
         if (points.size() > 0)
         {
             //** generate more point(s) **
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < NPointsGen; i++)
             {
                 //(1) select random vertex
                 Vector2f vtx = vertices[rand() % 3];
@@ -122,7 +124,7 @@ int main()
 
         if (hintText.getString().getSize() > 0) window.draw(hintText);
 
-        for (int i = 0; i < vertices.size(); i++)
+        for (unsigned long i = 0; i < vertices.size(); i++)
         {
             RectangleShape rect(Vector2f(4, 4));
             rect.setPosition(Vector2f(vertices[i].x - 2, vertices[i].y - 2));
@@ -131,7 +133,7 @@ int main()
         }
 
         //** Draw points **
-        for (int i = 0; i < points.size(); i++)
+        for (unsigned long i = 0; i < points.size(); i++)
         {
             RectangleShape rect(Vector2f(2, 2));
             rect.setPosition(Vector2f(points[i].x - 1, points[i].y - 1));
