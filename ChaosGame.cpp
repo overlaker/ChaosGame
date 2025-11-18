@@ -9,16 +9,23 @@ using namespace sf;
 
 int main()
 {
-    int NPointsGen = 10;
+    // Points to generate in one frame/loop
+    int NPointsGen = 50;
+
+    // Number of vertices, max vertices
+    int NVertices = 3;      //default, but will be decided later...
+    int MaxVertices = 8;    //upper limit of vertices...
+    bool EndClickInput = false;
 
     // Create a video mode object
     VideoMode vm(1900, 1000);
 
     // Create and open a window for the game
-    RenderWindow window(vm, "Chaos Game - Sierpi?ski triangle", Style::Default);
+    RenderWindow window(vm, "Chaos Game - Sierpinski triangle +", Style::Default);
     vector<Vector2f> vertices;
     vector<Vector2f> points;
 
+    // Prepare for the Font object with styles
     sf::Font font;
     sf::Text hintText;
     if (!font.loadFromFile("KOMIKAP_.ttf"))
@@ -37,13 +44,13 @@ int main()
     while (window.isOpen())
     {
         /** Hint the user **/
-        if (vertices.size() < 3)
+        if (vertices.size() < MaxVertices && !EndClickInput)
         {
-            hintText.setString(" Click on any 3 Points on the screen to create the vertices for the triangle...");
+            hintText.setString("Left Click on at least 3 up to " + to_string(MaxVertices) + " Points on the screen to create the vertices; Right click to end.");
         }
         else if (points.size() == 0)
         {
-            hintText.setString(" Click one more time for the Starting Point...");
+            hintText.setString("Left Click one more time for the Starting Point...");
         }
         else hintText.setString("");
 
@@ -65,7 +72,7 @@ int main()
             {
                 if (event.mouseButton.button == sf::Mouse::Left)
                 {
-                    if (vertices.size() < 3)
+                    if (vertices.size() < MaxVertices && !EndClickInput)
                     {
                         std::cout << "the left button was pressed" << std::endl;
                         std::cout << "mouse x: " << event.mouseButton.x << std::endl;
@@ -75,12 +82,21 @@ int main()
                     else if (points.size() == 0)
                     {
                         ///fourth click
-                        std::cout << "the left button was pressed for the 4th time!!" << std::endl;
+                        std::cout << "the left button was pressed for the start point!!" << std::endl;
                         std::cout << "mouse x: " << event.mouseButton.x << std::endl;
                         std::cout << "mouse y: " << event.mouseButton.y << std::endl;
 
                         ///push back to points vector
                         points.push_back(Vector2f(event.mouseButton.x, event.mouseButton.y));
+                    }
+                }
+                else if (event.mouseButton.button == sf::Mouse::Right && !EndClickInput)
+                {
+                    int n = vertices.size();
+                    if (n >= 3 && n <= MaxVertices)
+                    {
+                        std::cout << "the right button was pressed ~" << std::endl;
+                        EndClickInput = true;
                     }
                 }
             }
@@ -102,7 +118,7 @@ int main()
             for (int i = 0; i < NPointsGen; i++)
             {
                 //(1) select random vertex
-                Vector2f vtx = vertices[rand() % 3];
+                Vector2f vtx = vertices[rand() % vertices.size()];
 
                 //(2) calculate midpoint between random vertex and the last point in the vector
                 Vector2f last = points.at(points.size() - 1);
