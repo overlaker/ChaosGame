@@ -9,11 +9,9 @@ using namespace sf;
 
 int main()
 {
-    // Points to generate in one frame/loop
-    int NPointsGen = 50;
-
-    // Number of vertices, max vertices
-    //int NVertices = 3;      //default, but will be decided later...
+    // Global Var.
+    int NPointsGen = 1000;    // Points to generate in one frame/loop
+    float MagicRatios[] = { 0.5, 0.5, 0.618, 0.6667, 0.692, 0.707, 0.742, 0.764 };  //3~10 vertices
     long unsigned int MaxVertices = 8;    //upper limit of vertices...
     bool EndClickInput = false;
 
@@ -35,7 +33,6 @@ int main()
     else
     {
         hintText.setFont(font);
-        //hintText.setString("Hello world");
         hintText.setCharacterSize(24); // in pixels, not points!
         hintText.setFillColor(sf::Color::White);
         //hintText.setStyle(sf::Text::Bold | sf::Text::Underlined);
@@ -81,18 +78,21 @@ int main()
                     }
                     else if (points.size() == 0)
                     {
-                        ///fourth click
+                        ///pick start point
                         std::cout << "the left button was pressed for the start point!!" << std::endl;
                         std::cout << "mouse x: " << event.mouseButton.x << std::endl;
                         std::cout << "mouse y: " << event.mouseButton.y << std::endl;
 
-                        ///push back to points vector
                         points.push_back(Vector2f(event.mouseButton.x, event.mouseButton.y));
+                    }
+                    else
+                    {
+                        std::cout << "Total points: " << points.size() << endl;
                     }
                 }
                 else if (event.mouseButton.button == sf::Mouse::Right && !EndClickInput)
                 {
-                    int n = vertices.size();
+                    long unsigned int n = vertices.size();
                     if (n >= 3 && n <= MaxVertices)
                     {
                         std::cout << "the right button was pressed ~" << std::endl;
@@ -114,17 +114,26 @@ int main()
         */
         if (points.size() > 0)
         {
-            //** generate more point(s) **
+            float ratio = MagicRatios[vertices.size() - 3];
+            int lastIdx = -1;
+            // generate NPointsGen points
             for (int i = 0; i < NPointsGen; i++)
             {
                 //(1) select random vertex
-                Vector2f vtx = vertices[rand() % vertices.size()];
+                int idx = rand() % vertices.size();
+                //Avoid the same vertex twice in a row for rectangle (only!)
+                while (idx == lastIdx && vertices.size() == 4)
+                {
+                    idx = rand() % vertices.size();
+                }
+                Vector2f vtx = vertices[idx];
+                lastIdx = idx;
 
                 //(2) calculate midpoint between random vertex and the last point in the vector
                 Vector2f last = points.at(points.size() - 1);
                 Vector2f npt;
-                npt.x = (vtx.x + last.x) / 2.0;
-                npt.y = (vtx.y + last.y) / 2.0;
+                npt.x = last.x + ratio * (vtx.x - last.x);
+                npt.y = last.y + ratio * (vtx.y - last.y);
 
                 //(3) push back the newly generated coord.
                 points.push_back(npt);
